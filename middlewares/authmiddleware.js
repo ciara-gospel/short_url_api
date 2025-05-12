@@ -1,11 +1,25 @@
 import jwt from "jsonwebtoken";
 import logger from "../utils/logger.js";
+import { query } from "../config/db.js";
 
 const authMiddleware = (req, res, next) => {
-  // Bypass auth for tests
   if (process.env.NODE_ENV === 'test') {
-    req.user = { id: '88ce9fdf-43c3-41a0-9c26-6dff85b0f00b' };
-    return next();
+    const getUserFromDb = async () => {
+      const { rows } = await query('SELECT * FROM users LIMIT 1');
+      if (rows.length > 0) {
+        req.user = { id: rows[0].id };
+        return next();
+      } else {
+        return res.status(400).json({ message: 'No users found in the database for tests' });
+      }
+    };
+    
+    getUserFromDb().catch(err => {
+      logger.error('Error fetching user from DB:', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    });
+
+    return;
   }
 
   const authHeader = req.headers["authorization"];

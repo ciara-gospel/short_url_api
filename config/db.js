@@ -67,7 +67,6 @@ async function initializeDbSchema() {
       CREATE INDEX IF NOT EXISTS idx_short_urls_user_id ON short_urls(user_id);
     `);
 
-    // ✅ Nouvelle table "urls"
     await client.query(`
       CREATE TABLE IF NOT EXISTS urls (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -96,8 +95,7 @@ async function initializeDbSchema() {
 async function query(text, params) {
   const start = Date.now();
   try {
-    var router = express.Router();
-    const res = await pool.query(text, params);
+    const res = await pool.query(text, params); // ✅ Corrigé ici
     logger.info(`Executed query in ${Date.now() - start}ms: ${text}`);
     return res;
   } catch (err) {

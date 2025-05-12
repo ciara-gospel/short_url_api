@@ -6,7 +6,7 @@
 
 import app from '../app.js';
 import logger from '../utils/logger.js';
-
+import { initializeDbSchema, connectToDb, pool } from '../config/db.js';
 import deb  from'debug'  
 import http from'http';
 import dotenv from 'dotenv'
@@ -126,16 +126,15 @@ function onListening() {
 
 const startServer = async () => {
   try {
-    logger.info(`Attempting to Start server on port ${port}`)
-    // await connectToDb()
-    // await initialzeDbSchema()
-    logger.info(`Starting server on port ${port}`)
+    logger.info(`Attempting to start server on port ${port}`);
+    await connectToDb();
+    await initializeDbSchema();
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListening);
   } catch (error) {
-    logger.error('Failed during server startup process: ', error)
-    process.exit(1)
+    logger.error('Failed during server startup:', error);
+    process.exit(1);
   }
 }
 
