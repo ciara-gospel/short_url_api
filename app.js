@@ -8,6 +8,8 @@ import path, { dirname } from 'node:path';
 
 import winstonLogger from "./utils/logger.js";
 import shortenRouter from './routes/shorten.js';
+import myUrlsRouter from './routes/myUrls.js';
+import dotenv from 'dotenv';
 
 
 import indexRouter from './routes/index.js';
@@ -18,6 +20,7 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+dotenv.config();
 
 const morganFormat = process.env.NODE_ENV === "production" ? "combined" : 'dev'
 app.use(morgan(morganFormat, { stream: winstonLogger.stream }));
@@ -31,5 +34,6 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/shorten', shortenRouter);
+app.use('/api/my-urls', myUrlsRouter);
 
 export default app;
