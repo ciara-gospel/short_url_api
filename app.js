@@ -6,7 +6,8 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'node:url';
 import path, { dirname } from 'node:path';
 
-import winstonLogger from "./utils/logger.js"
+import winstonLogger from "./utils/logger.js";
+import shortenRouter from './routes/shorten.js';
 
 
 import indexRouter from './routes/index.js';
@@ -29,5 +30,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/shorten', shortenRouter);
 
 export default app;
