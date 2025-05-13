@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
   });
 } else {
   pool = new Pool({
-    database: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL,
     connectionTimeoutMillis: 2000,
   });
 }
