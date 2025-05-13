@@ -1,7 +1,8 @@
 import { Pool } from "pg";
 import logger from "../utils/logger.js";
-import "dotenv/config";
+import dotenv from 'dotenv';
 
+dotenv.config();
 const { DB_USER, DB_HOST, DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
 
 if (!DB_USER || !DB_HOST || !DB_PASSWORD || !DB_NAME || !DB_PORT) {
@@ -10,11 +11,11 @@ if (!DB_USER || !DB_HOST || !DB_PASSWORD || !DB_NAME || !DB_PORT) {
 }
 
 const pool = new Pool({
-  user: DB_USER,
-  host: DB_HOST,
-  database: DB_NAME,
-  password: DB_PASSWORD,
-  port: parseInt(DB_PORT, 10),
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.NODE_ENV === 'test' ? process.env.DB_NAME_TEST : process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
   connectionTimeoutMillis: 2000,
 });
 
