@@ -11,6 +11,7 @@ import shortenRouter from './routes/shorten.js';
 import myUrlsRouter from './routes/myUrls.js';
 import errorHandler from './middlewares/errorHandler.js';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 
 import indexRouter from './routes/index.js';
@@ -30,6 +31,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
