@@ -18,7 +18,7 @@ export const shortenUrl = async (req, res) => {
 
   try {
     const existing = await query(
-      "SELECT * FROM urls WHERE original_url = $1 AND user_id = $2",
+      'SELECT * FROM urls WHERE original_url = $1 AND user_id = $2',
       [originalUrl, userId]
     );
 
