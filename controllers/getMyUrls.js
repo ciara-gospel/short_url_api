@@ -4,12 +4,10 @@ export const getMyUrls = async (req, res) => {
   try {
     const userId = req.user?.id;
 
-    // Vérifie que l'utilisateur est bien authentifié
     if (!userId) {
       return res.status(401).json({ message: 'Non autorisé' });
     }
 
-    // Requête SQL : récupère les URL appartenant à l'utilisateur
     const result = await query(
       `
         SELECT 
@@ -25,7 +23,6 @@ export const getMyUrls = async (req, res) => {
       [userId]
     );
 
-    // Retourne les données
     return res.status(200).json({ urls: result.rows });
   } catch (error) {
     console.error('Erreur dans getMyUrls:', error);

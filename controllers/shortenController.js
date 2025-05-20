@@ -18,7 +18,7 @@ export const shortenUrl = async (req, res) => {
 
   try {
     const existing = await query(
-      "SELECT * FROM short_urls WHERE original_url = $1 AND user_id = $2",
+      "SELECT * FROM urls WHERE original_url = $1 AND user_id = $2",
       [originalUrl, userId]
     );
 
@@ -35,7 +35,7 @@ export const shortenUrl = async (req, res) => {
     const shortCode = nanoid(6);
 
     const result = await query(
-      `INSERT INTO short_urls (user_id, original_url, shortened_code, created_at, expires_at, clicks)
+      `INSERT INTO urls (user_id, original_url, shortened_code, created_at, expires_at, clicks)
        VALUES ($1, $2, $3, NOW(), NULL, 0)
        RETURNING *`,
       [userId, originalUrl, shortCode]

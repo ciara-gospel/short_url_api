@@ -63,19 +63,7 @@ async function initializeDbSchema() {
     `);
 
     await client.query(`
-      CREATE TABLE IF NOT EXISTS short_urls (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        shortened_code VARCHAR(10) UNIQUE NOT NULL,
-        original_url TEXT NOT NULL,
-        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP,
-        clicks INTEGER DEFAULT 0
-      );
-    `);
-
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_short_urls_user_id ON short_urls(user_id);
+      DROP TABLE IF EXISTS short_urls CASCADE;
     `);
 
     await client.query(`
