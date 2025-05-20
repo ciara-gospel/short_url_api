@@ -2,46 +2,40 @@ import jwt from "jsonwebtoken";
 import logger from "../utils/logger.js";
 import { query } from "../config/db.js";
 
-const authMiddleware = (req, res, next) => {
-  if (process.env.NODE_ENV === 'test') {
-    const getUserFromDb = async () => {
+const authMiddleware = async (req, res, next) => {
+  try {
+    if (process.env.NODE_ENV === 'test') {
       const { rows } = await query('SELECT * FROM users LIMIT 1');
-      if (rows.length > 0) {
-        req.user = { id: rows[0].id };
-        return next();
-      } else {
+      if (rows.length === 0) {
         return res.status(400).json({ message: 'No users found in the database for tests' });
       }
-    };
-    
-    getUserFromDb().catch(err => {
-      logger.error('Error fetching user from DB:', err);
-      return res.status(500).json({ message: 'Internal server error' });
-    });
 
-    return;
-  }
-
-  const authHeader = req.headers["authorization"];
-  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
-
-  if (!token) {
-    logger.warn("No token provided");
-    return res.status(401).json({ message: "No token, authorization denied" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user || decoded;
-
-    if (!req.user?.id) {
-      throw new Error("Invalid token payload");
+      req.user = { id: rows[0].id };
+      return next();
     }
 
-    logger.debug(`Token verified for user ${req.user.id}`);
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      logger.warn("No or invalid Authorization header");
+      return res.status(401).json({ message: "No token, authorization denied" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Standardiser payload (peut dépendre de ta stratégie de signature du token)
+    const userId = decoded?.user?.id || decoded?.id;
+
+    if (!userId) {
+      throw new Error("Token payload does not contain user ID");
+    }
+
+    req.user = { id: userId };
+
+    logger.debug(`User authenticated: ${userId}`);
     next();
   } catch (err) {
-    logger.error("Token verification failed", err);
+    logger.error("Authentication failed:", err.message);
     return res.status(401).json({ 
       message: err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token' 
     });

@@ -1,24 +1,34 @@
 import { query } from '../config/db.js';
 
 export const getMyUrls = async (req, res) => {
-  const userId = req.user?.id; // injecté par authMiddleware
-
-  if (!userId) {
-    return res.status(401).json({ message: 'Non autorisé' });
-  }
-
   try {
+    const userId = req.user?.id;
+
+    // Vérifie que l'utilisateur est bien authentifié
+    if (!userId) {
+      return res.status(401).json({ message: 'Non autorisé' });
+    }
+
+    // Requête SQL : récupère les URL appartenant à l'utilisateur
     const result = await query(
-      `SELECT short_code AS "shortCode", long_url AS "longUrl", created_at AS "createdAt", 
-              expires_at AS "expiresAt", clicks
-       FROM short_urls
-       WHERE user_id = $1
-       ORDER BY created_at DESC`,
+      `
+        SELECT 
+          shortened_code AS "shortCode",
+          original_url AS "longUrl",
+          created_at AS "createdAt",
+          expires_at AS "expiresAt",
+          clicks
+        FROM short_urls
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+      `,
       [userId]
     );
 
+    // Retourne les données
     return res.status(200).json({ urls: result.rows });
   } catch (error) {
+    console.error('Erreur dans getMyUrls:', error);
     return res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 };

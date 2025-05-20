@@ -65,8 +65,8 @@ async function initializeDbSchema() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS short_urls (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        short_code VARCHAR(10) UNIQUE NOT NULL,
-        long_url TEXT NOT NULL,
+        shortened_code VARCHAR(10) UNIQUE NOT NULL,
+        original_url TEXT NOT NULL,
         user_id UUID REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         expires_at TIMESTAMP,
