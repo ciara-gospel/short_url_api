@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid';
-import { query } from '../config/db.js';
-import logger from '../utils/logger.js';
+import { nanoid } from "nanoid";
+import { query } from "../config/db.js";
+import logger from "../utils/logger.js";
 
 export const shortenUrl = async (req, res) => {
   const { originalUrl } = req.body;
@@ -10,10 +10,15 @@ export const shortenUrl = async (req, res) => {
     return res.status(400).json({ message: "Original URL is required" });
   }
 
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: User not authenticated" });
+  }
+
   try {
-    // Vérifie si cette URL a déjà été raccourcie pour ce user
     const existing = await query(
-      'SELECT * FROM short_urls WHERE original_url = $1 AND user_id = $2',
+      "SELECT * FROM short_urls WHERE original_url = $1 AND user_id = $2",
       [originalUrl, userId]
     );
 
@@ -23,14 +28,12 @@ export const shortenUrl = async (req, res) => {
       const shortUrl = `${baseUrl}/s/${existing.rows[0].shortened_code}`;
       return res.status(200).json({
         message: "URL already shortened",
-        shortUrl
+        shortUrl,
       });
     }
 
-    // Crée un short code unique
     const shortCode = nanoid(6);
 
-    // Sauvegarde dans la base de données (respecte la structure du schéma)
     const result = await query(
       `INSERT INTO short_urls (user_id, original_url, shortened_code, created_at, expires_at, clicks)
        VALUES ($1, $2, $3, NOW(), NULL, 0)
@@ -43,11 +46,10 @@ export const shortenUrl = async (req, res) => {
     logger.info(`Shortened new URL for user ${userId}`);
     res.status(201).json({
       message: "URL shortened",
-      shortUrl
+      shortUrl,
     });
-
   } catch (error) {
-    logger.error("Shorten URL failed:", error);
+    logger.error("Shorten URL failed:", error.message, error.stack);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
