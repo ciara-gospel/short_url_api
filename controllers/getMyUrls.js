@@ -9,9 +9,9 @@ export const getMyUrls = async (req, res) => {
 
   try {
     const result = await query(
-      `SELECT shortened_code, original_url AS longUrl, created_at AS "createdAt", 
+      `SELECT short_code AS "shortCode", long_url AS "longUrl", created_at AS "createdAt", 
               expires_at AS "expiresAt", clicks
-       FROM urls
+       FROM short_urls
        WHERE user_id = $1
        ORDER BY created_at DESC`,
       [userId]
